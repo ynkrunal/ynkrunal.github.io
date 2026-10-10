@@ -27,6 +27,8 @@
 html { scroll-behavior: smooth; }
 
 body {
+  /* Permanent 80% scale (matches 80% browser zoom) */
+  zoom: 0.8;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
