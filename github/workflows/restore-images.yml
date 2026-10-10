@@ -1,0 +1,39 @@
+name: Restore binary images
+on:
+  push:
+    paths:
+      - 'assets/img/b64/**'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode base64 images to binaries
+        run: |
+          set -e
+          mkdir -p assets/img/projects
+          base64 -d assets/img/b64/webito-logo.png.b64 > assets/img/webito-logo.png
+          base64 -d assets/img/b64/nyc-311.jpg.b64 > assets/img/projects/nyc-311.jpg
+          base64 -d assets/img/b64/pong.gif.b64 > assets/img/projects/pong.gif
+          base64 -d assets/img/b64/bitcoin.png.b64 > assets/img/projects/bitcoin.png
+          base64 -d assets/img/b64/bank.jpg.b64 > assets/img/projects/bank.jpg
+          base64 -d assets/img/b64/keyboard.jpg.b64 > assets/img/projects/keyboard.jpg
+          base64 -d assets/img/b64/databricks.png.b64 > assets/img/projects/databricks.png
+          for f in assets/img/webito-logo.png assets/img/projects/nyc-311.jpg assets/img/projects/pong.gif assets/img/projects/bitcoin.png assets/img/projects/bank.jpg assets/img/projects/keyboard.jpg assets/img/projects/databricks.png; do
+            [ -s "$f" ] || { echo "MISSING: $f"; exit 1; }
+            echo "OK $f"
+          done
+      - name: Commit restored images
+        run: |
+          git config user.name "portfolio-bot"
+          git config user.email "portfolio-bot@local"
+          git add assets/img/webito-logo.png assets/img/projects/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Restore binary image files"
+            git push
+          fi
